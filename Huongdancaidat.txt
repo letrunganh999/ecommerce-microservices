@@ -1,0 +1,162 @@
+🧰 HƯỚNG DẪN CÀI ĐẶT MÔI TRƯỜNG
+(Ubuntu 20.04 / 22.04 – máy ảo)
+1️⃣ Update hệ thống
+sudo apt update && sudo apt upgrade -y
+
+2️⃣ Cài Git
+sudo apt install -y git
+git --version
+
+3️⃣ Cài Java JDK 17
+
+(Spring Boot 2.7.x CHUẨN Java 17)
+
+sudo apt install -y openjdk-17-jdk
+java -version
+javac -version
+
+
+👉 Kết quả mong muốn:
+
+openjdk version "17.x.x"
+
+4️⃣ Cài Maven
+sudo apt install -y maven
+mvn -version
+
+5️⃣ Cài Docker & Docker Compose
+5.1 Cài Docker
+sudo apt install -y docker.io
+docker --version
+
+5.2 Enable Docker
+sudo systemctl start docker
+sudo systemctl enable docker
+
+5.3 Cho user chạy docker không cần sudo
+sudo usermod -aG docker $USER
+newgrp docker
+
+
+Kiểm tra:
+
+docker ps
+
+6️⃣ Cài Docker Compose (plugin)
+docker compose version
+
+
+Nếu chưa có:
+
+sudo apt install -y docker-compose-plugin
+docker compose version
+
+7️⃣ Cài MySQL Client
+sudo apt install -y mysql-client
+mysql --version
+
+8️⃣ Clone source code từ GitHub
+cd ~
+git clone https://github.com/<your-username>/ecommerce-microservices.git
+cd ecommerce-microservices
+
+9️⃣ Khởi tạo Docker network (RẤT QUAN TRỌNG)
+docker network create ecommerce-network
+
+🔟 Chạy các service hạ tầng bằng Docker
+docker compose up -d
+
+
+Bao gồm:
+
+MySQL
+
+MongoDB
+
+Kafka + Zookeeper
+
+Elasticsearch
+
+Logstash
+
+Kibana
+
+Kiểm tra:
+
+docker ps
+
+1️⃣1️⃣ Tạo database cho từng service (MySQL)
+mysql -h 127.0.0.1 -P 3306 -u root -p
+
+CREATE DATABASE userservice;
+CREATE DATABASE productservice;
+CREATE DATABASE orderservice;
+CREATE DATABASE inventoryservice;
+CREATE DATABASE paymentservice;
+
+1️⃣2️⃣ Chạy Eureka Discovery Server
+cd ~/ecommerce-microservices/discovery-service
+mvn clean spring-boot:run
+
+
+🌐 Kiểm tra:
+
+http://localhost:8761
+
+1️⃣3️⃣ Chạy API Gateway
+cd ~/ecommerce-microservices/api-gateway
+mvn clean spring-boot:run
+
+1️⃣4️⃣ Chạy các Microservices
+USER SERVICE
+cd ~/ecommerce-microservices/user-service
+mvn clean spring-boot:run
+
+PRODUCT SERVICE
+cd ~/ecommerce-microservices/product-service
+mvn clean spring-boot:run
+
+ORDER SERVICE
+cd ~/ecommerce-microservices/order-service
+mvn clean spring-boot:run
+
+INVENTORY SERVICE
+cd ~/ecommerce-microservices/inventory-service
+mvn clean spring-boot:run
+
+PAYMENT SERVICE
+cd ~/ecommerce-microservices/payment-service
+mvn clean spring-boot:run
+
+1️⃣5️⃣ Kiểm tra health các service
+curl http://localhost:8080/actuator/health
+curl http://localhost:8088/actuator/health
+curl http://localhost:8086/actuator/health
+curl http://localhost:8084/actuator/health
+curl http://localhost:8082/actuator/health
+curl http://localhost:8085/actuator/health
+
+1️⃣6️⃣ Kiểm tra đăng ký Eureka
+
+Truy cập:
+
+http://localhost:8761
+
+
+👉 Phải thấy:
+
+API-GATEWAY
+
+USER-SERVICE
+
+PRODUCT-SERVICE
+
+ORDER-SERVICE
+
+INVENTORY-SERVICE
+
+PAYMENT-SERVICE
+
+🧹 Lệnh dọn dẹp (khi cần)
+docker compose down
+docker rm -f mysql mongodb broker zookeeper elasticsearch kibana logstash
